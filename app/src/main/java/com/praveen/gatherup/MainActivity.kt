@@ -1,41 +1,47 @@
 package com.praveen.gatherup
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import com.praveen.gatherup.databinding.ActivityMainBinding
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.rememberNavController
+import com.praveen.gatherup.data.AuthStore
+import com.praveen.gatherup.data.repository.AuthRepository
+import com.praveen.gatherup.ui.navigation.AppNavGraph
+import com.praveen.gatherup.ui.theme.GatherUpTheme
+import com.praveen.gatherup.viewmodel.AuthViewModel
+import com.praveen.gatherup.viewmodel.AuthViewModelFactory
 
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
+/**
+ * MainActivity — decides start destination:
+ *  - if token exists -> startDestination = "home"
+ *  - otherwise -> "login"
+ *
+ * It creates the AuthViewModel using a simple AuthRepository.
+ */
+class MainActivity : ComponentActivity() {
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // Create repo + viewmodel (replace with DI if you use one)
+        val repo = AuthRepository()
+        authViewModel = ViewModelProvider(this, AuthViewModelFactory(repo))[AuthViewModel::class.java]
 
-        setSupportActionBar(binding.toolbar)
+        // Read stored token (simple SharedPreferences)
+        val token = AuthStore(this).getToken()
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        val startDest = if (!token.isNullOrBlank()) "home" else "login"
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        setContent {
+            GatherUpTheme {
+                val navController = rememberNavController()
+                // Pass startDestination so NavHost starts at login/home correctly
+                AppNavGraph(navController = navController, authViewModel = authViewModel, startDestination = startDest)
+            }
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 }

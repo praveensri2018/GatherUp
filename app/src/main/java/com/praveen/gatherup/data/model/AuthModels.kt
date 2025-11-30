@@ -1,3 +1,5 @@
-﻿package com.praveen.gatherup.data.model
+package com.praveen.gatherup.data.model
 
-data class LoginResult(val success:Boolean, val requireOtp:Boolean=false, val token:String?=null, val message:String?=null)
+data class LoginRequest(val mobile_number: String, val password: String)
+data class AuthTokens(val access_token: String?, val refresh_token: String?)
+data class RegisterRequest(val mobile_number: String, val password: String, val full_name: String?)

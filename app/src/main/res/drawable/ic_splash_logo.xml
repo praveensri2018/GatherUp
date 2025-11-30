@@ -1,0 +1,56 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- Outer Blue Circle -->
+    <path
+        android:fillColor="#0A66FF"
+        android:pathData="M64,0A64,64 0,1 1,64 128A64,64 0,1 1,64 0Z" />
+
+    <!-- Group Icon (3 persons) -->
+
+    <!-- Center head -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,36
+                         a12,12 0 1,1 0,24
+                         a12,12 0 1,1 0,-24" />
+
+    <!-- Center body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,80
+                        a20,20 0 0,1 40,0
+                        v12h-40z" />
+
+    <!-- Left head -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,50
+                         a10,10 0 1,1 0,20
+                         a10,10 0 1,1 0,-20" />
+
+    <!-- Right head -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M92,50
+                         a10,10 0 1,1 0,20
+                         a10,10 0 1,1 0,-20" />
+
+    <!-- Left body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,90
+                        a18,18 0 0,1 36,0
+                        v10h-36z" />
+
+    <!-- Right body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M66,90
+                        a18,18 0 0,1 36,0
+                        v10h-36z" />
+
+</vector>

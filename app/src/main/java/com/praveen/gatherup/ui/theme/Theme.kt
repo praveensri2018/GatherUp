@@ -8,36 +8,41 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BlueLight,
-    secondary = TealAccent,
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
+    primary = BluePrimary,         // using BluePrimary as accent
+    secondary = PurpleAccent,
+    background = DarkBackground,
+    surface = SurfaceDark,
     onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.White,
-    onSurface = Color.White
+    onSecondary = Color.White,
+    onBackground = TextHigh,
+    onSurface = TextHigh,
+    error = Error
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = BluePrimary,
+    primary = BlueLight,
     secondary = TealAccent,
     background = GrayBackground,
     surface = Color.White,
     onPrimary = Color.White,
-    onSecondary = Color.Black,
+    onSecondary = TextPrimary,
     onBackground = TextPrimary,
-    onSurface = TextPrimary
+    onSurface = TextPrimary,
+    error = Error
 )
 
+/**
+ * Central theme entry point. Use this in MainActivity.setContent { GatherUpTheme { ... } }
+ */
 @Composable
 fun GatherUpTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = colors,
         typography = Typography,
         content = content
     )

@@ -46,7 +46,10 @@ import com.praveen.gatherup.vm.UiState
  * Runtime screen: wires ViewModel + navigation behaviour.
  */
 @Composable
-fun LoginFormScreen(navController: NavController) {
+fun LoginFormScreen(
+    navController: NavController,
+    prefillMobile: String = ""
+) {
     val context = LocalContext.current
     val repo = remember { AuthRepositoryImpl(NetworkModule.authService) }
     val tokenStore = remember { TokenStore(context) }
@@ -55,7 +58,6 @@ fun LoginFormScreen(navController: NavController) {
 
     val state by viewModel.loginState.collectAsState()
 
-    // on success navigate to home
     if (state is UiState.Success) {
         LaunchedEffect(state) {
             navController.navigate("home") {
@@ -66,6 +68,7 @@ fun LoginFormScreen(navController: NavController) {
 
     LoginFormContent(
         state = state,
+        initialMobile = prefillMobile,
         onLogin = { mobile, password -> viewModel.login(mobile, password) },
         onForgot = { navController.navigate("forgot_password") },
         onRegister = { navController.navigate("register") }
@@ -78,14 +81,15 @@ fun LoginFormScreen(navController: NavController) {
 @Composable
 fun LoginFormContent(
     state: UiState<Any> = UiState.Idle,
+    initialMobile: String = "",
     onLogin: (String, String) -> Unit = { _, _ -> },
     onForgot: () -> Unit = {},
     onRegister: () -> Unit = {}
-) {
+){
     val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
-    var mobile by remember { mutableStateOf("") }
+    var mobile by remember { mutableStateOf(initialMobile) }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 

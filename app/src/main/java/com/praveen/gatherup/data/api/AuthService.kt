@@ -1,8 +1,6 @@
 package com.praveen.gatherup.data.api
 
-import com.praveen.gatherup.data.model.AuthTokens
-import com.praveen.gatherup.data.model.LoginRequest
-import com.praveen.gatherup.data.model.RegisterRequest
+import com.praveen.gatherup.data.model.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,4 +17,13 @@ interface AuthService {
     // optional: get profile
     @GET("/api/me")
     suspend fun me(@Header("Authorization") bearer: String): Response<Any>
+
+    @POST("/auth/forgot/send-otp")
+    suspend fun sendForgotOtp(@Body body: SendOtpRequest): Response<SendOtpResponse>
+
+    @POST("/auth/forgot/verify-otp")
+    suspend fun verifyForgotOtp(@Body body: VerifyOtpRequest): Response<VerifyOtpResponse>
+
+    @POST("/auth/forgot/reset")
+    suspend fun resetPassword(@Body body: ResetPasswordRequest): Response<SimpleApiResponse>
 }

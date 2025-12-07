@@ -14,7 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val token = TokenStore(this).getAccessToken()
-        val startDest = if (!token.isNullOrBlank()) "home" else "login"
+        // use "login_form" (base route) instead of "login"
+        val startDest = if (!token.isNullOrBlank()) "home" else "login_form"
 
         setContent {
             GatherUpTheme {

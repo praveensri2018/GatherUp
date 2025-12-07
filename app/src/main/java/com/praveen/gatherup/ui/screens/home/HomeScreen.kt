@@ -31,8 +31,9 @@ fun HomeScreen(navController: NavController) {
                 Button(onClick = {
                     TokenStore(context).clearTokens()
 
-                    navController.navigate("login") {
-                        popUpTo(0) { inclusive = true }   // full reset
+                    navController.navigate("login_form") {
+                        // clear back stack up to home (including home)
+                        popUpTo("home") { inclusive = true }
                         launchSingleTop = true
                     }
                 }) {

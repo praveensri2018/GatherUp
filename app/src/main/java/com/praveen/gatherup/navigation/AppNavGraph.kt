@@ -1,6 +1,7 @@
 package com.praveen.gatherup.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,9 +21,9 @@ fun AppNavGraph(
         composable("splash") { SplashScreen(navController) }
 
         // Auth / Legal
-        composable("login") { LoginScreen(navController) }
-        composable("login_form") { LoginFormScreen(navController) }
-        composable("register") { RegisterScreen(navController) }
+        composable("login_form") { LoginScreen(navController) }
+        composable("login") { LoginFormScreen(navController) }
+        composable("register") { RegisterScreen(navController as Modifier) }
         composable("forgot_password") { ForgotPasswordScreen(navController) }
         composable("otp_verify") { OtpVerifyScreen(navController) }
         composable("reset_password") { ResetPasswordScreen(navController) }
@@ -33,6 +34,7 @@ fun AppNavGraph(
         composable("privacy") { PrivacyScreen(navController) }
 
         // Home
-        composable("home") { HomeScreen() }
+        composable("home") { HomeScreen(navController) }
+
     }
 }

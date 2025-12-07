@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.kapt") // needed for Room / Moshi codegen
+    id("com.google.devtools.ksp") version "1.9.23-1.0.20"
+
 }
 
 android {
@@ -67,11 +69,20 @@ dependencies {
     implementation(libs.androidx.activity)
 
     // --- Compose dependencies (explicit coordinates to avoid alias mapping issues) ---
+
     implementation("androidx.compose.ui:ui:1.5.3")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.compose.ui.graphics)
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.3")
     implementation("androidx.compose.material:material:1.5.3")
+    implementation("androidx.compose.material:material-icons-extended:1.5.3")
+    implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.material3:material3:1.1.0")
+
+    implementation(libs.androidx.compose.foundation)
+
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.navigation:navigation-compose:2.7.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")

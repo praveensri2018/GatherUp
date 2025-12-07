@@ -17,11 +17,44 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.praveen.gatherup.ui.theme.GatherUpTheme
 import com.praveen.gatherup.ui.theme.Shapes
 
-@Preview
+/**
+ * Runtime screen — uses NavController for navigation.
+ */
 @Composable
 fun LoginScreen(navController: NavController) {
+    LoginContent(
+        onClose = {
+            if (!navController.popBackStack()) {
+                navController.navigate("login_form") {
+                    popUpTo("splash") { inclusive = false }
+                }
+            }
+        },
+        onOpenTerms = { navController.navigate("terms") },
+        onOpenPrivacy = { navController.navigate("privacy") },
+        onAgree = {
+            // navigate to register (change to "login_form" if you prefer)
+            navController.navigate("register") {
+                popUpTo("login") { inclusive = false }
+            }
+        }
+    )
+}
+
+/**
+ * Pure UI component (no NavController) — great for previews and testing.
+ * Provide callbacks for user actions.
+ */
+@Composable
+fun LoginContent(
+    onClose: () -> Unit,
+    onOpenTerms: () -> Unit,
+    onOpenPrivacy: () -> Unit,
+    onAgree: () -> Unit,
+) {
     var agreed by remember { mutableStateOf(false) }
 
     val colors = MaterialTheme.colorScheme
@@ -40,14 +73,7 @@ fun LoginScreen(navController: NavController) {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {
-                    // Prefer navigateUp, fallback to login_form
-                    if (!navController.popBackStack()) {
-                        navController.navigate("login_form") {
-                            popUpTo("splash") { inclusive = false }
-                        }
-                    }
-                }) {
+                IconButton(onClick = onClose) {
                     Icon(Icons.Default.Close, contentDescription = "Close", tint = colors.onBackground)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
@@ -103,14 +129,14 @@ fun LoginScreen(navController: NavController) {
                 // List items (terms / privacy)
                 PrivacyRow(
                     title = "Terms of Service",
-                    onClick = { navController.navigate("terms") },
+                    onClick = onOpenTerms,
                     colors = colors,
                     typography = typography
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 PrivacyRow(
                     title = "Privacy Policy",
-                    onClick = { navController.navigate("privacy") },
+                    onClick = onOpenPrivacy,
                     colors = colors,
                     typography = typography
                 )
@@ -140,7 +166,7 @@ fun LoginScreen(navController: NavController) {
                         text = "Terms of Service",
                         color = PurpleAccentColorOrFallback(colors),
                         style = typography.bodyLarge,
-                        modifier = Modifier.clickable { navController.navigate("terms") },
+                        modifier = Modifier.clickable { onOpenTerms() },
                         textDecoration = TextDecoration.Underline
                     )
                     Text(
@@ -152,7 +178,7 @@ fun LoginScreen(navController: NavController) {
                         text = "Privacy Policy.",
                         color = PurpleAccentColorOrFallback(colors),
                         style = typography.bodyLarge,
-                        modifier = Modifier.clickable { navController.navigate("privacy") },
+                        modifier = Modifier.clickable { onOpenPrivacy() },
                         textDecoration = TextDecoration.Underline
                     )
                 }
@@ -161,13 +187,7 @@ fun LoginScreen(navController: NavController) {
 
                 // Pill primary button (disabled until checkbox)
                 Button(
-                    onClick = {
-                        // navigate to register or login_form depending on your flow
-                        // I navigate to "register" (you can change to "login_form")
-                        navController.navigate("register") {
-                            popUpTo("login") { inclusive = false }
-                        }
-                    },
+                    onClick = onAgree,
                     enabled = agreed,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -243,3 +263,19 @@ private fun PrivacyRow(
 @Composable
 private fun PurpleAccentColorOrFallback(colors: androidx.compose.material3.ColorScheme) =
     if (colors.secondary != Color.Unspecified) colors.secondary else androidx.compose.ui.graphics.Color(0xFF8C6EF2)
+
+
+// ---------- PREVIEW ----------
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    GatherUpTheme {
+        // preview with no-op callbacks
+        LoginContent(
+            onClose = {},
+            onOpenTerms = {},
+            onOpenPrivacy = {},
+            onAgree = {}
+        )
+    }
+}

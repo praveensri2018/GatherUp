@@ -115,6 +115,10 @@ fun AppNavGraph(
         composable("profile") {
             ProfileScreen()
         }
+
+        composable("create_post") {
+            PostComposerScreen(navController)
+        }
     }
 }
 

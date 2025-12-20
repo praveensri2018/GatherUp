@@ -1,20 +1,37 @@
 package com.praveen.gatherup.data
 
 import com.praveen.gatherup.data.api.AuthService
+import com.praveen.gatherup.data.api.FeedService
+import com.praveen.gatherup.data.api.PostService
+import com.praveen.gatherup.data.api.SocialService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkModule {
 
-    // Use 10.0.2.2 to reach host machine from emulator. Update to your base URL.
     private const val BASE_URL = "https://gatherupapi.run.place"
     //private const val BASE_URL = "http://localhost:8080"
 
-    val authService: AuthService by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(AuthService::class.java)
+    }
+
+    val authService: AuthService by lazy {
+        retrofit.create(AuthService::class.java)
+    }
+
+    val feedService: FeedService by lazy {
+        retrofit.create(FeedService::class.java)
+    }
+
+    val postService: PostService by lazy {
+        retrofit.create(PostService::class.java)
+    }
+
+    val socialService: SocialService by lazy {
+        retrofit.create(SocialService::class.java)
     }
 }

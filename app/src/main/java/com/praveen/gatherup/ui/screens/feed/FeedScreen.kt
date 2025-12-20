@@ -6,44 +6,152 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.praveen.gatherup.data.NetworkModule
+import com.praveen.gatherup.data.repository.*
+import com.praveen.gatherup.security.TokenStore
 import com.praveen.gatherup.ui.components.posts.PostCard
+import com.praveen.gatherup.vm.*
 
 @Composable
 fun FeedScreen(navController: NavController) {
+
+    val context = LocalContext.current
+    val tokenStore = remember { TokenStore(context) }
+
+    /* ---------- FEED VM ---------- */
+    val feedVm = remember {
+        FeedViewModel(
+            FeedRepository(
+                NetworkModule.feedService,
+                tokenStore
+            )
+        )
+    }
+
+    /* ---------- POST ACTION VM (Like) ---------- */
+    val postActionVm = remember {
+        PostActionViewModel(
+            PostRepository(
+                NetworkModule.postService,
+                tokenStore
+            )
+        )
+    }
+
+    /* ---------- SOCIAL VM (Bookmark / Follow) ---------- */
+    val socialVm = remember {
+        SocialViewModel(
+            SocialRepository(
+                NetworkModule.socialService,
+                tokenStore
+            )
+        )
+    }
+
+    /* ---------- Load Feed Once ---------- */
+    LaunchedEffect(Unit) {
+        feedVm.loadFeed()
+    }
+
+    val state by feedVm.state.collectAsState()
 
     Scaffold(
         topBar = { FeedTopBar() },
         bottomBar = { FeedBottomBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    // later: navigate to PostComposerScreen
-                }
+                onClick = { navController.navigate("create_post") }
             ) {
                 Icon(Icons.Default.Edit, contentDescription = "Create Post")
             }
         }
     ) { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(dummyFeed) {
-                PostCard(
-                    username = "joshua_l",
-                    timeAgo = "2h ago",
-                    content = "Just wrapped up an amazing weekend hiking trip in the mountains. " +
-                            "The views were absolutely breathtaking!",
-                    likes = 88,
-                    comments = 12
-                )
+        when (state) {
+
+            /* ---------- LOADING ---------- */
+            is FeedUiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            /* ---------- ERROR ---------- */
+            is FeedUiState.Error -> {
+                val msg = (state as FeedUiState.Error).message
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = msg,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            /* ---------- SUCCESS ---------- */
+            is FeedUiState.Success -> {
+                val posts = (state as FeedUiState.Success).posts
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    items(posts) { post ->
+
+                        PostCard(
+                            username = post.author_id.take(6),
+                            timeAgo = post.created_at,
+                            content = buildString {
+                                if (!post.title.isNullOrBlank()) {
+                                    append(post.title)
+                                    append("\n\n")
+                                }
+                                append(post.body ?: "")
+                            },
+                            likes = 0,
+                            comments = 0,
+
+                            /* LIKE */
+                            onLikeClick = {
+                                postActionVm.toggleLike(
+                                    postId = post.id,
+                                    liked = false
+                                )
+                            },
+
+                            /* COMMENT */
+                            onCommentClick = {
+                                navController.navigate("post_detail/${post.id}")
+                            },
+
+                            /* SHARE (placeholder) */
+                            onShareClick = {
+                                // TODO: Android share intent
+                            },
+
+                            /* BOOKMARK */
+                            onBookmarkClick = {
+                                socialVm.bookmark(post.id)
+                            }
+                        )
+                    }
+                }
             }
         }
     }
@@ -64,15 +172,10 @@ fun FeedTopBar() {
         },
         actions = {
             IconButton(onClick = { }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-
-            BadgedBox(
-                badge = { Badge { Text("2") } }
-            ) {
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                }
+                Icon(
+                    Icons.Default.Notifications,
+                    contentDescription = "Notifications"
+                )
             }
         }
     )
@@ -97,36 +200,9 @@ fun FeedBottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            onClick = {
-                navController.navigate("profile")
-            },
-            icon = { Icon(Icons.Default.Person, null) },
-            label = { Text("Profile") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Search, null) },
-            label = { Text("Search") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Event, null) },
-            label = { Text("Events") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
+            onClick = { navController.navigate("profile") },
             icon = { Icon(Icons.Default.Person, null) },
             label = { Text("Profile") }
         )
     }
 }
-
-/* ---------------- DUMMY DATA ---------------- */
-
-private val dummyFeed = listOf(1, 2, 3, 4, 5)

@@ -3,10 +3,7 @@ package com.praveen.gatherup.ui.components.posts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Comment
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,12 +17,17 @@ fun PostCard(
     timeAgo: String,
     content: String,
     likes: Int,
-    comments: Int
+    comments: Int,
+    onLikeClick: () -> Unit,
+    onCommentClick: () -> Unit,
+    onShareClick: () -> Unit = {},
+    onBookmarkClick: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
 
@@ -49,7 +51,7 @@ fun PostCard(
                     Text(timeAgo, style = MaterialTheme.typography.labelSmall)
                 }
 
-                IconButton(onClick = { }) {
+                IconButton(onClick = { /* more options later */ }) {
                     Icon(Icons.Default.MoreVert, contentDescription = "More")
                 }
             }
@@ -64,7 +66,7 @@ fun PostCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            /* ---------- IMAGE ---------- */
+            /* ---------- IMAGE PLACEHOLDER ---------- */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,19 +82,47 @@ fun PostCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(Icons.Default.FavoriteBorder, contentDescription = "Like")
-                Spacer(modifier = Modifier.width(4.dp))
+                /* LIKE */
+                IconButton(onClick = onLikeClick) {
+                    Icon(
+                        Icons.Default.FavoriteBorder,
+                        contentDescription = "Like"
+                    )
+                }
                 Text(likes.toString())
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Icon(Icons.Default.Comment, contentDescription = "Comment")
-                Spacer(modifier = Modifier.width(4.dp))
+                /* COMMENT */
+                IconButton(onClick = onCommentClick) {
+                    Icon(
+                        Icons.Default.Comment,
+                        contentDescription = "Comment"
+                    )
+                }
                 Text(comments.toString())
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Icon(Icons.Default.Share, contentDescription = "Share")
+                /* SHARE */
+                IconButton(onClick = onShareClick) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = "Share"
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                /* BOOKMARK (optional) */
+                onBookmarkClick?.let {
+                    IconButton(onClick = it) {
+                        Icon(
+                            Icons.Default.BookmarkBorder,
+                            contentDescription = "Bookmark"
+                        )
+                    }
+                }
             }
         }
     }

@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import com.praveen.gatherup.ui.screens.onboarding.SplashScreen
 import com.praveen.gatherup.ui.screens.auth.*
 import com.praveen.gatherup.ui.screens.home.HomeScreen
+
+import com.praveen.gatherup.ui.screens.feed.*
 import com.praveen.gatherup.ui.screens.misc.PrivacyScreen
 import com.praveen.gatherup.ui.screens.misc.TermsScreen
 import kotlinx.coroutines.CancellationException
@@ -15,6 +17,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.praveen.gatherup.ui.screens.profile.ProfileScreen
 
 @Composable
 fun AppNavGraph(
@@ -103,7 +106,15 @@ fun AppNavGraph(
         composable("privacy") { PrivacyScreen(navController) }
 
         // Home
-        composable("home") { HomeScreen(navController) }
+        composable("home") { FeedScreen(navController) }
+
+        composable("feed") {
+            FeedScreen(navController)
+        }
+
+        composable("profile") {
+            ProfileScreen()
+        }
     }
 }
 

@@ -3,8 +3,9 @@ package com.praveen.gatherup.ui.screens.feed
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +25,8 @@ fun FeedScreen(navController: NavController) {
     val context = LocalContext.current
     val tokenStore = remember { TokenStore(context) }
 
-    /* ---------- FEED VM ---------- */
+    /* ---------------- VIEW MODELS ---------------- */
+
     val feedVm = remember {
         FeedViewModel(
             FeedRepository(
@@ -34,7 +36,6 @@ fun FeedScreen(navController: NavController) {
         )
     }
 
-    /* ---------- POST ACTION VM (Like) ---------- */
     val postActionVm = remember {
         PostActionViewModel(
             PostRepository(
@@ -44,7 +45,6 @@ fun FeedScreen(navController: NavController) {
         )
     }
 
-    /* ---------- SOCIAL VM (Bookmark / Follow) ---------- */
     val socialVm = remember {
         SocialViewModel(
             SocialRepository(
@@ -54,12 +54,16 @@ fun FeedScreen(navController: NavController) {
         )
     }
 
-    /* ---------- Load Feed Once ---------- */
+    /* ---------------- INITIAL LOAD ---------------- */
+
     LaunchedEffect(Unit) {
-        feedVm.loadFeed()
+        feedVm.loadInitial()
     }
 
     val state by feedVm.state.collectAsState()
+    val listState = rememberLazyListState()
+
+    /* ---------------- UI ---------------- */
 
     Scaffold(
         topBar = { FeedTopBar() },
@@ -71,7 +75,7 @@ fun FeedScreen(navController: NavController) {
                 Icon(Icons.Default.Edit, contentDescription = "Create Post")
             }
         }
-    ) { paddingValues ->
+    ) { padding ->
 
         when (state) {
 
@@ -80,7 +84,7 @@ fun FeedScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
+                        .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -89,15 +93,14 @@ fun FeedScreen(navController: NavController) {
 
             /* ---------- ERROR ---------- */
             is FeedUiState.Error -> {
-                val msg = (state as FeedUiState.Error).message
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
+                        .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = msg,
+                        text = (state as FeedUiState.Error).message,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -105,104 +108,65 @@ fun FeedScreen(navController: NavController) {
 
             /* ---------- SUCCESS ---------- */
             is FeedUiState.Success -> {
-                val posts = (state as FeedUiState.Success).posts
+                val data = state as FeedUiState.Success
 
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
+                        .padding(padding)
                 ) {
-                    items(posts) { post ->
+
+                    /* 🔥 SAFE LIST RENDERING (NO CRASH) */
+                    items(
+                        items = data.items,
+                        key = { it.post_id }   // VERY IMPORTANT
+                    ) { post ->
 
                         PostCard(
-                            username = post.author_id.take(6),
-                            timeAgo = post.created_at,
-                            content = buildString {
-                                if (!post.title.isNullOrBlank()) {
-                                    append(post.title)
-                                    append("\n\n")
-                                }
-                                append(post.body ?: "")
-                            },
-                            likes = 0,
-                            comments = 0,
+                            post = post,
 
-                            /* LIKE */
                             onLikeClick = {
                                 postActionVm.toggleLike(
-                                    postId = post.id,
-                                    liked = false
+                                    postId = post.post_id,
+                                    liked = post.viewer_state.liked
                                 )
                             },
 
-                            /* COMMENT */
                             onCommentClick = {
-                                navController.navigate("post_detail/${post.id}")
+                                navController.navigate(
+                                    "post_detail/${post.post_id}"
+                                )
                             },
 
-                            /* SHARE (placeholder) */
-                            onShareClick = {
-                                // TODO: Android share intent
-                            },
-
-                            /* BOOKMARK */
                             onBookmarkClick = {
-                                socialVm.bookmark(post.id)
+                                socialVm.toggleBookmark(
+                                    postId = post.post_id,
+                                    bookmarked = post.viewer_state.bookmarked
+                                )
                             }
                         )
+                    }
+
+                    /* ---------- PAGINATION LOADER ---------- */
+                    if (data.loadingMore) {
+                        item {
+                            LaunchedEffect(Unit) {
+                                feedVm.loadMore()
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-}
-
-/* ---------------- TOP BAR ---------------- */
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FeedTopBar() {
-    TopAppBar(
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.People, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("GatherUp")
-            }
-        },
-        actions = {
-            IconButton(onClick = { }) {
-                Icon(
-                    Icons.Default.Notifications,
-                    contentDescription = "Notifications"
-                )
-            }
-        }
-    )
-}
-
-/* ---------------- BOTTOM BAR ---------------- */
-
-@Composable
-fun FeedBottomBar(navController: NavController) {
-    NavigationBar {
-
-        NavigationBarItem(
-            selected = true,
-            onClick = {
-                navController.navigate("feed") {
-                    popUpTo("feed") { inclusive = true }
-                }
-            },
-            icon = { Icon(Icons.Default.Home, null) },
-            label = { Text("Feed") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate("profile") },
-            icon = { Icon(Icons.Default.Person, null) },
-            label = { Text("Profile") }
-        )
     }
 }

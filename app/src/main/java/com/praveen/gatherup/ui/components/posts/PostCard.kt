@@ -10,18 +10,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.praveen.gatherup.data.api.FeedItemDto
 
 @Composable
 fun PostCard(
-    username: String,
-    timeAgo: String,
-    content: String,
-    likes: Int,
-    comments: Int,
+    post: FeedItemDto,
     onLikeClick: () -> Unit,
     onCommentClick: () -> Unit,
     onShareClick: () -> Unit = {},
-    onBookmarkClick: (() -> Unit)? = null
+    onBookmarkClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -37,93 +34,101 @@ fun PostCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Profile image placeholder
                 Box(
                     modifier = Modifier
                         .size(40.dp)
                         .background(Color.Gray, shape = MaterialTheme.shapes.small)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(Modifier.width(8.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(username, style = MaterialTheme.typography.labelLarge)
-                    Text(timeAgo, style = MaterialTheme.typography.labelSmall)
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        post.author.username,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Text(
+                        formatTime(post.created_at),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
 
-                IconButton(onClick = { /* more options later */ }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More")
+                IconButton(onClick = { }) {
+                    Icon(Icons.Default.MoreVert, null)
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
-            /* ---------- TEXT CONTENT ---------- */
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            /* ---------- CONTENT ---------- */
+            post.content.title?.takeIf { it.isNotBlank() }?.let {
+                Text(it, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            post.content.body?.takeIf { it.isNotBlank() }?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium)
+            }
 
-            /* ---------- IMAGE PLACEHOLDER ---------- */
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
+            Spacer(Modifier.height(10.dp))
 
-            Spacer(modifier = Modifier.height(10.dp))
+            /* ---------- MEDIA (SAFE) ---------- */
+            if (!post.media.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+                Spacer(Modifier.height(10.dp))
+            }
 
             /* ---------- ACTIONS ---------- */
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
 
-                /* LIKE */
                 IconButton(onClick = onLikeClick) {
                     Icon(
-                        Icons.Default.FavoriteBorder,
+                        if (post.viewer_state.liked)
+                            Icons.Default.Favorite
+                        else Icons.Default.FavoriteBorder,
                         contentDescription = "Like"
                     )
                 }
-                Text(likes.toString())
+                Text(post.stats.likes.toString())
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(Modifier.width(16.dp))
 
-                /* COMMENT */
                 IconButton(onClick = onCommentClick) {
-                    Icon(
-                        Icons.Default.Comment,
-                        contentDescription = "Comment"
-                    )
+                    Icon(Icons.Default.Comment, null)
                 }
-                Text(comments.toString())
+                Text(post.stats.comments.toString())
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(Modifier.width(16.dp))
 
-                /* SHARE */
                 IconButton(onClick = onShareClick) {
-                    Icon(
-                        Icons.Default.Share,
-                        contentDescription = "Share"
-                    )
+                    Icon(Icons.Default.Share, null)
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(Modifier.weight(1f))
 
-                /* BOOKMARK (optional) */
-                onBookmarkClick?.let {
-                    IconButton(onClick = it) {
-                        Icon(
-                            Icons.Default.BookmarkBorder,
-                            contentDescription = "Bookmark"
-                        )
-                    }
+                IconButton(onClick = onBookmarkClick) {
+                    Icon(
+                        if (post.viewer_state.bookmarked)
+                            Icons.Default.Bookmark
+                        else Icons.Default.BookmarkBorder,
+                        contentDescription = "Bookmark"
+                    )
                 }
             }
         }
+    }
+}
+
+/* ---------- TIME FORMATTER ---------- */
+private fun formatTime(raw: String): String {
+    return try {
+        raw.substring(0, 10) // simple safe fallback
+    } catch (e: Exception) {
+        raw
     }
 }

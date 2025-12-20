@@ -98,6 +98,9 @@ dependencies {
     // codegen
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
 
+    implementation("androidx.compose.runtime:runtime:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")

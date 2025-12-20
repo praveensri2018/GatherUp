@@ -12,7 +12,7 @@ interface SocialService {
     ): Response<Unit>
 
     @DELETE("/posts/{id}/bookmark")
-    suspend fun unBookmark(
+    suspend fun unbookmark(
         @Header("Authorization") token: String,
         @Path("id") postId: String
     ): Response<Unit>
@@ -24,7 +24,7 @@ interface SocialService {
     ): Response<Unit>
 
     @POST("/users/{id}/unfollow")
-    suspend fun unFollow(
+    suspend fun unfollow(
         @Header("Authorization") token: String,
         @Path("id") userId: String
     ): Response<Unit>

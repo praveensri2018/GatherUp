@@ -15,19 +15,27 @@ class SocialViewModel(
         viewModelScope.launch {
             try {
                 repo.bookmark(postId)
-            } catch (e: Exception) {
-                // optional: log error
-            }
+            } catch (_: Exception) {}
         }
     }
 
-    fun unBookmark(postId: String) {
+    fun unbookmark(postId: String) {
         viewModelScope.launch {
             try {
-                repo.unBookmark(postId)
-            } catch (e: Exception) {
-                // optional: log error
-            }
+                repo.unbookmark(postId)
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun toggleBookmark(postId: String, bookmarked: Boolean) {
+        viewModelScope.launch {
+            try {
+                if (bookmarked) {
+                    repo.unbookmark(postId)
+                } else {
+                    repo.bookmark(postId)
+                }
+            } catch (_: Exception) {}
         }
     }
 
@@ -37,19 +45,27 @@ class SocialViewModel(
         viewModelScope.launch {
             try {
                 repo.follow(userId)
-            } catch (e: Exception) {
-                // optional: log error
-            }
+            } catch (_: Exception) {}
         }
     }
 
-    fun unFollow(userId: String) {
+    fun unfollow(userId: String) {
         viewModelScope.launch {
             try {
-                repo.unFollow(userId)
-            } catch (e: Exception) {
-                // optional: log error
-            }
+                repo.unfollow(userId)
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun toggleFollow(userId: String, following: Boolean) {
+        viewModelScope.launch {
+            try {
+                if (following) {
+                    repo.unfollow(userId)
+                } else {
+                    repo.follow(userId)
+                }
+            } catch (_: Exception) {}
         }
     }
 }

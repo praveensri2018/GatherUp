@@ -3,10 +3,15 @@ package com.praveen.gatherup.security
 import android.content.Context
 import android.content.SharedPreferences
 
+import com.google.gson.Gson
+import com.praveen.gatherup.data.model.MeDto
+
 class TokenStore(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences("auth_tokens", Context.MODE_PRIVATE)
+
+    private val gson = Gson()
 
     fun saveAccessToken(token: String) {
         prefs.edit().putString("access_token", token).apply()
@@ -27,4 +32,20 @@ class TokenStore(context: Context) {
     fun clearTokens() {
         prefs.edit().clear().apply()
     }
+
+
+    fun saveMyProfile(me: MeDto) {
+        val json = gson.toJson(me)
+        prefs.edit().putString("cached_profile", json).apply()
+    }
+
+    fun getCachedProfile(): MeDto? {
+        val json = prefs.getString("cached_profile", null) ?: return null
+        return try {
+            gson.fromJson(json, MeDto::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }

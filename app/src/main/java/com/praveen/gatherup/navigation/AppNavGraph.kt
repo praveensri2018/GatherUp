@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.praveen.gatherup.ui.screens.profile.EditProfileScreen
 import com.praveen.gatherup.ui.screens.profile.ProfileScreen
 
 @Composable
@@ -115,9 +116,14 @@ fun AppNavGraph(
             FeedScreen(navController)
         }
 
-        composable("profile") {
-            ProfileScreen()
+        composable("profile/me") {
+            ProfileScreen(
+                navController = navController,
+                isMe = true
+            )
         }
+
+        composable("edit_profile") { EditProfileScreen() }
 
         composable("create_post") {
             PostComposerScreen(navController)

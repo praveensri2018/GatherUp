@@ -19,6 +19,7 @@ import com.praveen.gatherup.security.TokenStore
 import com.praveen.gatherup.ui.components.posts.PostCard
 import com.praveen.gatherup.vm.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(navController: NavController) {
 
@@ -54,6 +55,11 @@ fun FeedScreen(navController: NavController) {
         )
     }
 
+    /* ---------------- COMMENT SHEET STATE ---------------- */
+
+    var showComments by remember { mutableStateOf(false) }
+    var selectedPostId by remember { mutableStateOf<String?>(null) }
+
     /* ---------------- INITIAL LOAD ---------------- */
 
     LaunchedEffect(Unit) {
@@ -63,7 +69,7 @@ fun FeedScreen(navController: NavController) {
     val state by feedVm.state.collectAsState()
     val listState = rememberLazyListState()
 
-    /* ---------------- UI (CONTENT ONLY) ---------------- */
+    /* ---------------- UI ---------------- */
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -106,6 +112,10 @@ fun FeedScreen(navController: NavController) {
                         PostCard(
                             post = post,
 
+                            onAuthorClick = {
+                                navController.navigate("profile/user/${post.author.id}")
+                            },
+
                             onLikeClick = {
                                 postActionVm.toggleLike(
                                     postId = post.post_id,
@@ -116,9 +126,8 @@ fun FeedScreen(navController: NavController) {
                             },
 
                             onCommentClick = {
-                                navController.navigate(
-                                    "post_detail/${post.post_id}"
-                                )
+                                selectedPostId = post.post_id
+                                showComments = true
                             },
 
                             onBookmarkClick = {
@@ -128,6 +137,7 @@ fun FeedScreen(navController: NavController) {
                                 )
                             }
                         )
+
                     }
 
                     if (data.loadingMore) {
@@ -150,7 +160,7 @@ fun FeedScreen(navController: NavController) {
             }
         }
 
-        /* ---------- FAB (Feed only) ---------- */
+        /* ---------- FAB ---------- */
 
         FloatingActionButton(
             modifier = Modifier
@@ -161,6 +171,29 @@ fun FeedScreen(navController: NavController) {
             }
         ) {
             Icon(Icons.Default.Edit, contentDescription = "Create Post")
+        }
+    }
+
+    /* ---------- COMMENT BOTTOM SHEET ---------- */
+
+    if (showComments && selectedPostId != null) {
+
+        ModalBottomSheet(
+            onDismissRequest = {
+                showComments = false
+                selectedPostId = null
+            },
+            sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true
+            )
+        ) {
+            CommentBottomSheetContent(
+                postId = selectedPostId!!,
+                onClose = {
+                    showComments = false
+                    selectedPostId = null
+                }
+            )
         }
     }
 }

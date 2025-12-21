@@ -32,21 +32,21 @@ class PostActionViewModel(
 
             try {
                 if (liked) {
-                    Log.d(TAG, "Calling UNLIKE API for postId=$postId")
+                    //Log.d(TAG, "Calling UNLIKE API for postId=$postId")
                     repo.unlike(postId)
                 } else {
-                    Log.d(TAG, "Calling LIKE API for postId=$postId")
+                    //Log.d(TAG, "Calling LIKE API for postId=$postId")
                     repo.like(postId)
                 }
 
-                Log.d(TAG, "API SUCCESS for postId=$postId")
+                //Log.d(TAG, "API SUCCESS for postId=$postId")
                 onSuccess()
 
             } catch (e: Exception) {
-                Log.e(TAG, "toggleLike ERROR postId=$postId", e)
+                //Log.e(TAG, "toggleLike ERROR postId=$postId", e)
             } finally {
                 inProgress.remove(postId)
-                Log.d(TAG, "toggleLike END postId=$postId")
+               // Log.d(TAG, "toggleLike END postId=$postId")
             }
         }
     }

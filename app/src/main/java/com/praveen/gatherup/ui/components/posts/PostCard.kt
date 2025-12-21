@@ -18,6 +18,7 @@ fun PostCard(
     onLikeClick: () -> Unit,
     onCommentClick: () -> Unit,
     onShareClick: () -> Unit = {},
+    onAuthorClick: () -> Unit,
     onBookmarkClick: () -> Unit
 ) {
     Card(

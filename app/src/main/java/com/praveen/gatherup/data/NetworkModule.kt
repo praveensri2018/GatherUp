@@ -5,8 +5,11 @@ import com.praveen.gatherup.data.api.FeedService
 import com.praveen.gatherup.data.api.PostService
 import com.praveen.gatherup.data.api.SocialService
 import com.praveen.gatherup.data.api.CommentService
+import com.praveen.gatherup.data.api.UserService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+
+import com.praveen.gatherup.data.network.AuthInterceptor
 
 object NetworkModule {
 
@@ -37,6 +40,10 @@ object NetworkModule {
     }
     val commentService: CommentService by lazy {
         retrofit.create(CommentService::class.java)
+    }
+
+    val userService: UserService by lazy {
+        retrofit.create(UserService::class.java)
     }
 
 }

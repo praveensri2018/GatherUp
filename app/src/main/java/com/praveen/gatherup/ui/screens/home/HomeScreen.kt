@@ -100,7 +100,10 @@ fun HomeScreen(navController: NavController) {
                 0 -> FeedScreen(navController)
                 1 -> PostComposerContent(navController)
                 2 -> Box(modifier = Modifier.fillMaxSize()) { /* Events later */ }
-                3 -> ProfileScreen()
+                3 -> ProfileScreen(
+                    navController = navController,
+                    isMe = true
+                )
             }
         }
     }

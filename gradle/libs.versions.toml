@@ -33,6 +33,7 @@ room = "2.6.1"
 foundation = "1.5.3"
 foundationVersion = "1.9.5"
 uiGraphics = "1.9.5"
+runtime = "1.10.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -74,4 +75,5 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationVersion" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 

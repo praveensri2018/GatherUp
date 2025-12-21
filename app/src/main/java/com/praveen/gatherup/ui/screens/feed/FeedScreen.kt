@@ -63,40 +63,24 @@ fun FeedScreen(navController: NavController) {
     val state by feedVm.state.collectAsState()
     val listState = rememberLazyListState()
 
-    /* ---------------- UI ---------------- */
+    /* ---------------- UI (CONTENT ONLY) ---------------- */
 
-    Scaffold(
-        topBar = { FeedTopBar() },
-        bottomBar = { FeedBottomBar(navController) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("create_post") }
-            ) {
-                Icon(Icons.Default.Edit, contentDescription = "Create Post")
-            }
-        }
-    ) { padding ->
+    Box(modifier = Modifier.fillMaxSize()) {
 
         when (state) {
 
-            /* ---------- LOADING ---------- */
             is FeedUiState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
             }
 
-            /* ---------- ERROR ---------- */
             is FeedUiState.Error -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -106,21 +90,17 @@ fun FeedScreen(navController: NavController) {
                 }
             }
 
-            /* ---------- SUCCESS ---------- */
             is FeedUiState.Success -> {
                 val data = state as FeedUiState.Success
 
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
+                    modifier = Modifier.fillMaxSize()
                 ) {
 
-                    /* 🔥 SAFE LIST RENDERING (NO CRASH) */
                     items(
                         items = data.items,
-                        key = { it.post_id }   // VERY IMPORTANT
+                        key = { it.post_id }
                     ) { post ->
 
                         PostCard(
@@ -130,7 +110,9 @@ fun FeedScreen(navController: NavController) {
                                 postActionVm.toggleLike(
                                     postId = post.post_id,
                                     liked = post.viewer_state.liked
-                                )
+                                ) {
+                                    feedVm.updateLikeState(post.post_id)
+                                }
                             },
 
                             onCommentClick = {
@@ -148,7 +130,6 @@ fun FeedScreen(navController: NavController) {
                         )
                     }
 
-                    /* ---------- PAGINATION LOADER ---------- */
                     if (data.loadingMore) {
                         item {
                             LaunchedEffect(Unit) {
@@ -167,6 +148,19 @@ fun FeedScreen(navController: NavController) {
                     }
                 }
             }
+        }
+
+        /* ---------- FAB (Feed only) ---------- */
+
+        FloatingActionButton(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            onClick = {
+                navController.navigate("create_post")
+            }
+        ) {
+            Icon(Icons.Default.Edit, contentDescription = "Create Post")
         }
     }
 }

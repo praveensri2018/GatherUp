@@ -106,7 +106,10 @@ fun AppNavGraph(
         composable("privacy") { PrivacyScreen(navController) }
 
         // Home
-        composable("home") { FeedScreen(navController) }
+      //  composable("home") { FeedScreen(navController) }
+        composable("home") {
+            HomeScreen(navController)
+        }
 
         composable("feed") {
             FeedScreen(navController)
@@ -118,6 +121,18 @@ fun AppNavGraph(
 
         composable("create_post") {
             PostComposerScreen(navController)
+        }
+        composable(
+            route = "post_detail/{postId}",
+            arguments = listOf(
+                navArgument("postId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")!!
+            PostDetailScreen(
+                navController = navController,
+                postId = postId
+            )
         }
     }
 }

@@ -1,174 +1,107 @@
 package com.praveen.gatherup.ui.screens.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.praveen.gatherup.ui.screens.feed.FeedScreen
+import com.praveen.gatherup.ui.screens.feed.FeedTopBar
+import com.praveen.gatherup.ui.screens.feed.PostComposerContent
+import com.praveen.gatherup.ui.screens.profile.ProfileScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavController) {
 
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 4 } // Feed, Search, Events, Profile
+    )
+    val scope = rememberCoroutineScope()
+
     Scaffold(
-        topBar = { HomeTopBar() },
-        bottomBar = { HomeBottomBar() },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    // later: navigate to PostComposer
-                }
-            ) {
-                Icon(Icons.Default.Edit, contentDescription = "Create Post")
-            }
-        }
-    ) { paddingValues ->
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(dummyPosts) {
-                PostItem()
-            }
-        }
-    }
-}
-
-/* ---------------- TOP BAR ---------------- */
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HomeTopBar() {
-    TopAppBar(
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.People, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "GatherUp")
+        topBar = {
+            if (pagerState.currentPage == 0) {
+                FeedTopBar()
             }
         },
-        actions = {
-            IconButton(onClick = { }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
+        bottomBar = {
+            NavigationBar {
 
-            BadgedBox(
-                badge = { Badge { Text("2") } }
-            ) {
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                }
-            }
-        }
-    )
-}
-
-/* ---------------- BOTTOM BAR ---------------- */
-
-@Composable
-fun HomeBottomBar() {
-    NavigationBar {
-
-        NavigationBarItem(
-            selected = true,
-            onClick = { },
-            icon = { Icon(Icons.Default.Home, null) },
-            label = { Text("Feed") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Search, null) },
-            label = { Text("Search") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Event, null) },
-            label = { Text("Events") }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Person, null) },
-            label = { Text("Profile") }
-        )
-    }
-}
-
-/* ---------------- POST ITEM ---------------- */
-
-@Composable
-fun PostItem() {
-    Card(
-        modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-
-            // Header
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color.Gray, shape = MaterialTheme.shapes.small)
+                NavigationBarItem(
+                    selected = pagerState.currentPage == 0,
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(0) }
+                    },
+                    icon = { Icon(Icons.Default.Home, null) },
+                    label = { Text("Feed") }
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text("joshua_l", style = MaterialTheme.typography.labelLarge)
-                    Text("2h ago", style = MaterialTheme.typography.labelSmall)
+
+                NavigationBarItem(
+                    selected = pagerState.currentPage == 1,
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(1) }
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = "Post"
+                        )
+                    },
+                    label = { Text("Post") }
+                )
+
+                NavigationBarItem(
+                    selected = pagerState.currentPage == 2,
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(2) }
+                    },
+                    icon = { Icon(Icons.Default.Event, null) },
+                    label = { Text("Events") }
+                )
+
+                NavigationBarItem(
+                    selected = pagerState.currentPage == 3,
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(3) }
+                    },
+                    icon = { Icon(Icons.Default.Person, null) },
+                    label = { Text("Profile") }
+                )
+            }
+        },
+        floatingActionButton = {
+            if (pagerState.currentPage == 0) {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate("create_post")
+                    }
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Create Post")
                 }
             }
+        }
+    ) { padding ->
 
-            Spacer(modifier = Modifier.height(8.dp))
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) { page ->
 
-            // Content
-            Text(
-                "Just wrapped up an amazing weekend hiking trip in the mountains. " +
-                        "The views were absolutely breathtaking!",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Image placeholder
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Actions
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row {
-                    Icon(Icons.Default.FavoriteBorder, null)
-                    Spacer(Modifier.width(16.dp))
-                    Icon(Icons.Default.Comment, null)
-                    Spacer(Modifier.width(16.dp))
-                    Icon(Icons.Default.Share, null)
-                }
+            when (page) {
+                0 -> FeedScreen(navController)
+                1 -> PostComposerContent(navController)
+                2 -> Box(modifier = Modifier.fillMaxSize()) { /* Events later */ }
+                3 -> ProfileScreen()
             }
         }
     }
 }
-
-private val dummyPosts = listOf(1, 2, 3, 4, 5)

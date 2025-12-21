@@ -26,7 +26,7 @@ data class FeedItemDto(
     val viewer_state: ViewerStateDto,
     val created_at: String,
     val score: Double,
-    val media: List<MediaDto>
+    val media: List<MediaDto>? = emptyList()
 )
 
 data class AuthorDto(
